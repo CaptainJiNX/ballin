@@ -76,7 +76,8 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 				location.y = 0.4;
 			}			
 
-			velocity.multiplyScalar(0.99);
+			velocity.x *= 0.7;
+			velocity.z *= 0.99;
 		};
 
 		var addForce = function(force) {			
@@ -257,23 +258,30 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 
 			switch (event.keyCode) {
 				case 37: // Left
-					keyboardForce = new THREE.Vector3( -1, 0, 0 );
+					keyboardForce = new THREE.Vector3( -15, 0, 0 );
 					break;
 				case 38: // Up
-					keyboardForce = new THREE.Vector3( 0, 0, -0.1 );
+					keyboardForce = new THREE.Vector3( 0, 0, -0.5 );
 					break;
 				case 39: // Right
-					keyboardForce = new THREE.Vector3( 1, 0, 0 );
+					keyboardForce = new THREE.Vector3( 15, 0, 0 );
 					break;
 				case 40: // Down
 					keyboardForce = new THREE.Vector3( 0, 0, 0.1 );
 					break;
 				case 32: // Space
-					keyboardForce = new THREE.Vector3( 0, 50, 0 );
+					keyboardForce = new THREE.Vector3( 0, 35, 0 );
 			}
 		};
 
+		var clearKeyboardInput = function(event){
+			event = event || window.event;
+			event.preventDefault();
+			keyboardForce = new THREE.Vector3( 0, 0, 0 );
+		}
+
  		document.onkeydown = applyKeyboardInputs;
+ 		document.onkeyup = clearKeyboardInput;
 
 		updateFunctions.push(function(){
 			ball.mover.addForce( new THREE.Vector3( 0, 0, -0.2 ));
@@ -281,7 +289,8 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 		updateFunctions.push(function(){
 			if(keyboardForce.length() > 0){
 				ball.mover.addForce( keyboardForce.clone());
-				keyboardForce.multiplyScalar(0);
+				keyboardForce.y = 0;
+
 			}
 
 		});
