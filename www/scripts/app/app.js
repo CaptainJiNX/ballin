@@ -169,7 +169,7 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 		}
 
 		return pieces;
-	}
+	};
 
 	var updateFunctions = [];
 
