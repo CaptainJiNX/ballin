@@ -87,20 +87,36 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 			return location;
 		};
 
+		var getVelocity = function() {
+			return velocity;
+		};
+
 		return {
 			update: update,
 			addForce: addForce,
-			getLocation: getLocation
+			getLocation: getLocation,
+			getVelocity: getVelocity
 		};
 	};
 
 
 	var Ball = function() {
 		var geometry = new THREE.SphereGeometry( 0.4, 32, 32 );
+
+		var texture = THREE.ImageUtils.loadTexture( "../gfx/ball.png" );
+		texture.wrapT = THREE.RepeatWrapping; 
+		texture.wrapS = THREE.RepeatWrapping;
+		texture.repeat.set(4,4); 
+
+
 		var material = new THREE.MeshPhongMaterial( {
 					color: 0xFFFFFF,
-					specular: 0x404040
+					specular: 0x404040,
+					map: texture
+
 				} );
+
+
 		var ball = new THREE.Mesh( geometry, material );
 		var ballPosition = new THREE.Vector3( 3.5, 0.4, -1 );
 		var mover = new Mover(ballPosition);
@@ -110,7 +126,8 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 		scene.add( ball );
 
 		return {
-			mover: mover
+			mover: mover,
+			mesh: ball
 		};
 	};
 
@@ -286,8 +303,16 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 
 		});
 
-		updateFunctions.push(ball.mover.update);
+		updateFunctions.push(ball.mover.update);	
 		updateFunctions.push(lava.update);
+
+		updateFunctions.push(function(delta){
+
+			var m = ball.mesh;
+			var v = ball.mover.getVelocity();
+
+			m.rotation.x += v.z * delta;
+		});
 
 		updateFunctions.push(function() {
 			camera.lookAt(ball.mover.getLocation().clone().add(new THREE.Vector3( 0, 0, -14 )));
