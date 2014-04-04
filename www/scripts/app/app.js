@@ -71,7 +71,7 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 		var ball = new Ball();
 
 		updateFunctions.push(function(delta) {
-
+			ball.position.z -= delta * 10;
 		});
 	};
 
