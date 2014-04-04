@@ -61,11 +61,15 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 					specular: 0x404040
 				} );
 		var ball = new THREE.Mesh( geometry, material );
-		ball.position = new THREE.Vector3( 3.5, 0.4, -1 );
+		var ballPosition = new THREE.Vector3( 3.5, 0.4, -1 );
+		var mover = new Mover(ballPosition);
+
+		ball.position = mover.getLocation();
+
 		scene.add( ball );
 
 		return {
-			position: ball.position
+			mover: mover
 		};
 	};
 
@@ -95,10 +99,9 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 		}
 
 		var ball = new Ball();
+		ball.mover.addForce(new THREE.Vector3( 1, 0, -1 ));
 
-		updateFunctions.push(function(delta) {
-			ball.position.z -= delta * 10;
-		});
+		updateFunctions.push(ball.mover.update);
 	};
 
 	var updateFunctions = [];
