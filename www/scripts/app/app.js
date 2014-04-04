@@ -31,12 +31,21 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 	var Mover = function(initialPosition) {
 		var acceleration = new THREE.Vector3( 0, 0, 0 );
 		var velocity = new THREE.Vector3( 0, 0, 0 );
+		var maxVelocity = 10;
+
 		var location = initialPosition || new THREE.Vector3( 0, 0, 0 );
 
 		var update = function(delta) {
 			velocity.add(acceleration);
+
+			if(velocity.length() > maxVelocity) {
+				velocity.normalize();
+				velocity.multiplyScalar(maxVelocity);	
+			}
+
 			acceleration.multiplyScalar(0);
 			location.add(velocity.clone().multiplyScalar(delta));
+			velocity.multiplyScalar(0.99);
 		};
 
 		var addForce = function(force) {
@@ -53,6 +62,7 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 			getLocation: getLocation
 		};
 	};
+
 
 	var Ball = function() {
 		var geometry = new THREE.SphereGeometry( 0.4, 32, 32 );
@@ -100,6 +110,10 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 
 		var ball = new Ball();
 		ball.mover.addForce(new THREE.Vector3( 1, 0, -1 ));
+
+		updateFunctions.push(function(delta){
+			ball.mover.addForce(new THREE.Vector3( 0, 0, -1 ));
+		});
 
 		updateFunctions.push(ball.mover.update);
 	};
