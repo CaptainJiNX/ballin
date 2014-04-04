@@ -1,0 +1,20 @@
+{
+  "name": "ballin",
+  "version": "0.0.1",
+  "description": "Super mega awesome ninja game (without ninjas)",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Rolling Ninjas",
+  "license": "MIT",
+  "devDependencies": {
+  	"grunt": "latest",
+  	"grunt-contrib-connect": "latest",
+    "matchdep": "latest",
+  	"grunt-open": "latest",
+  	"grunt-contrib-watch": "latest",
+  	"grunt-contrib-jshint": "latest"
+  }
+}
