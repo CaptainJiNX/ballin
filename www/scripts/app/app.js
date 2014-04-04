@@ -146,6 +146,11 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 		});
 
 		updateFunctions.push(ball.mover.update);
+
+		updateFunctions.push(function() {
+			camera.lookAt(ball.mover.getLocation().clone().add(new THREE.Vector3( 0, 0, -14 )));
+			camera.position = ball.mover.getLocation().clone().add(new THREE.Vector3( 0, 4, 10 ));
+		});
 	};
 
 	var generateSegment = function() {
