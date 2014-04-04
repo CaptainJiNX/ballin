@@ -28,6 +28,32 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 		};
 	};
 
+	var Mover = function(initialPosition) {
+		var acceleration = new THREE.Vector3( 0, 0, 0 );
+		var velocity = new THREE.Vector3( 0, 0, 0 );
+		var location = initialPosition || new THREE.Vector3( 0, 0, 0 );
+
+		var update = function(delta) {
+			velocity.add(acceleration);
+			acceleration.multiplyScalar(0);
+			location.add(velocity.clone().multiplyScalar(delta));
+		};
+
+		var addForce = function(force) {
+			acceleration.add(force);
+		}
+
+		var getLocation = function() {
+			return location;
+		}
+
+		return {
+			update: update,
+			addForce: addForce,
+			getLocation: getLocation
+		}
+	};
+
 	var Ball = function() {
 		var geometry = new THREE.SphereGeometry( 0.4, 32, 32 );
 		var material = new THREE.MeshPhongMaterial( {
