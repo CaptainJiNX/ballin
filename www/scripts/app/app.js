@@ -90,22 +90,53 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 	};
 
 	var Lava = function() {
-		var geometry = new THREE.PlaneGeometry(2000,2000);
+
+		var size = 200;
+
+		var geometry = new THREE.PlaneGeometry(size,size);
+		
 		var texture = THREE.ImageUtils.loadTexture( "../gfx/lava.png" );
 		texture.wrapT = THREE.RepeatWrapping; 
-		texture.wrapS = THREE.RepeatWrapping; 
-		texture.wrapT = THREE.RepeatWrapping;
-		texture.repeat.set( 4, 4 ); 
+		texture.wrapS = THREE.RepeatWrapping;
+		texture.repeat.set( size/2, size/2 ); 
+
 		var material = new THREE.MeshPhongMaterial( {
 			color: 0xFFFFFF,
 			specular: 0x404040,
 			map: texture
 		} );
+
 		var lava = new THREE.Mesh(geometry,material);
-		lava.position = new THREE.Vector3( 0, -1, 0 );
-        lava.rotation.x=-0.5*Math.PI;
+		lava.position = new THREE.Vector3( -0, -1, 0 );
+        lava.rotation.x=-0.5*Math.PI; 
+
+		var material2 = new THREE.MeshPhongMaterial( {
+			color: 0xFFFFFF,
+			specular: 0x404040,
+			map: texture
+		} );
+
+		var lava2 = new THREE.Mesh(geometry,material2);
+		lava2.position = new THREE.Vector3( -0, -1, -size );
+        lava2.rotation.x=-0.5*Math.PI; 
 
 		scene.add(lava);
+		scene.add(lava2);
+
+		return {
+			update: function() {
+
+				var pos = camera.position.z;
+				if(pos < lava.position.z - (size/2))
+				{
+					lava.position.z = lava2.position.z - size;
+				}
+				if(pos < lava2.position.z - (size/2))
+				{
+					lava2.position.z = lava.position.z - size;
+				}
+			}
+		};
 	};
 
 	var addAmbientLight = function() {
@@ -129,7 +160,7 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 
 		var ground = new Ground();
 
-		for (var i = 0; i < 35; i++) {
+		for (var i = 0; i < 350; i++) {
 			var segment = generateSegment();
 			ground.addSegment(segment);
 		}
@@ -143,6 +174,7 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 		});
 
 		updateFunctions.push(ball.mover.update);
+		updateFunctions.push(lava.update);
 
 		updateFunctions.push(function() {
 			camera.lookAt(ball.mover.getLocation().clone().add(new THREE.Vector3( 0, 0, -14 )));
