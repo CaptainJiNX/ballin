@@ -6,11 +6,17 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 		var addSegment = function(parts){
 			parts = parts || [0,0,0,0,0,0,0,0];
 
-			for(var x = 0; x <parts.length; x++){
-				var geometry = new THREE.CubeGeometry( 1, 0.1, 1 );
+			for(var x = 0; x < parts.length; x++){
+				if(parts[x] < 0) // Digging a hole
+					continue;
+				
+				// 0 = normal ground, 1 = obstacle
+				var pieceHeight = (parts[x] == 1 ? 1 : 0.1);
+				
+				var geometry = new THREE.CubeGeometry( 1, pieceHeight, 1 );
 				var material = new THREE.MeshLambertMaterial( {color: getColor(x + currentSegment)} );
 				var iceCube = new THREE.Mesh( geometry, material );
-				iceCube.position = new THREE.Vector3( x, 0, -currentSegment );
+				iceCube.position = new THREE.Vector3( x, pieceHeight/2, -currentSegment );
 				scene.add( iceCube );
 			}
 
@@ -95,7 +101,8 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 		var ground = new Ground();
 
 		for (var i = 0; i < 35; i++) {
-			ground.addSegment();
+			var segment = generateSegment();
+			ground.addSegment(segment);
 		}
 
 		var ball = new Ball();
@@ -103,6 +110,24 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 
 		updateFunctions.push(ball.mover.update);
 	};
+
+	var generateSegment = function() {
+		var pieces = [0,0,0,0,0,0,0,0];
+		for (var j = 0; j < 8; j++)
+		{
+			var piece = Math.floor((Math.random()*100)+1);
+			if (piece < 3)
+			{
+				pieces[j] = -1;
+			}
+			else if (piece > 97)
+			{
+				pieces[j] = 1;
+			}
+		}
+
+		return pieces;
+	}
 
 	var updateFunctions = [];
 
