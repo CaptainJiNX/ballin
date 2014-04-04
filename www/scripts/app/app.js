@@ -15,8 +15,16 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene', 'physi'], function(
 				
 				// 0 = normal ground, 1 = obstacle
 				var pieceHeight = (parts[x] == 1 ? 1 : 0.1);
-				
-				var geometry = new THREE.CubeGeometry( 1, pieceHeight, 1 );
+
+				var x2 = 1;
+				var z2 = 1;
+				if(parts[x] == 5)
+				{
+					var x2 = 0.5;
+					pieceHeight = 0.5;
+				}
+
+				var geometry = new THREE.CubeGeometry( x2, pieceHeight, z2 );
 				var material = new THREE.MeshLambertMaterial( {color: getColor(x + currentSegment)} );
 				var iceCube = new Physi.BoxMesh( geometry, material, 0 );
 
@@ -32,7 +40,7 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene', 'physi'], function(
 		var removeSegment = function(zValue) {
 			var segmentToRemove = segmentQueue[0];
 			// number of units between ball and screen, before removal
-			var offset = 4;
+			var offset = 50;
 			
 			if (segmentToRemove[0].position.z-offset > zValue)
 			{
@@ -133,13 +141,12 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene', 'physi'], function(
 
 
 	var Ball = function() {
-		var geometry = new THREE.SphereGeometry( 0.4, 32, 32 );
+		var geometry = new THREE.SphereGeometry( 0.4, 256, 256 );
 
 		var texture = THREE.ImageUtils.loadTexture( "../gfx/ball.png" );
 		texture.wrapT = THREE.RepeatWrapping; 
 		texture.wrapS = THREE.RepeatWrapping;
 		texture.repeat.set(4,4); 
-
 
 		var material = new THREE.MeshPhongMaterial( {
 					color: 0xFFFFFF,
@@ -152,7 +159,8 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene', 'physi'], function(
             geometry,
             material,
             undefined,
-            { restitution: Math.random() * 1.5 }
+            //{ restitution: Math.random() * 1.5 }
+            { restitution: 0 }
         );
  
 
@@ -189,7 +197,7 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene', 'physi'], function(
 		} );
 
 		var lava = new THREE.Mesh(geometry,material);
-		lava.position = new THREE.Vector3( -0, -1, 0 );
+		lava.position = new THREE.Vector3( -0, -10, 0 );
         lava.rotation.x=-0.5*Math.PI; 
 
 		var material2 = new THREE.MeshPhongMaterial( {
@@ -199,7 +207,7 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene', 'physi'], function(
 		} );
 
 		var lava2 = new THREE.Mesh(geometry,material2);
-		lava2.position = new THREE.Vector3( -0, -1, -size );
+		lava2.position = new THREE.Vector3( -0, -10, -size );
         lava2.rotation.x=-0.5*Math.PI; 
 
 		scene.add(lava);
@@ -291,91 +299,80 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene', 'physi'], function(
 
 		var ground = new Ground();
 
-		for (var i = 0; i < 20; i++) {
-			ground.addSegment(generateSegment());
+		for (var i = 0; i < 50; i++) {
+			ground.addSegment([0,0,0,0,0,0,0,0]);
 		}
 
-		//var skybox = new SkyBox();
 		var ball = new Ball();
-		//ball.mover.addForce(new THREE.Vector3( 1, 0, -1 ));
 		var lava = new Lava();
 		var keyboardForce = new THREE.Vector3( 0,0,0);
+
 		// Hook up kbd events.
 		var applyKeyboardInputs = function(event) {
 			event = event || window.event;
 			event.preventDefault();
-			console.log("asdf");
-/*
-  			if(ball.mover.getLocation().y > 0.3) {
-  				return false;
-			}
-*/
 
+			if(ball.mesh.position.y > 1 || ball.mesh.position.y < 0) {
+				return false;
+			}
 
 			switch (event.keyCode) {
 				case 37: // Left
-					keyboardForce = new THREE.Vector3( -0.02, 0, 0 );
+					keyboardForce = new THREE.Vector3( -0.2, 0, 0 );
 					break;
 				case 38: // Up
-					keyboardForce = new THREE.Vector3( 0, 0, -0.5 );
+					keyboardForce = new THREE.Vector3( 0, 0, -0.2 );
 					break;
 				case 39: // Right
-					keyboardForce = new THREE.Vector3( 0.02, 0, 0 );
+					keyboardForce = new THREE.Vector3( 0.2, 0, 0 );
+					//console.log("you pressed right");
 					break;
 				case 40: // Down
 					keyboardForce = new THREE.Vector3( 0, 0, 0.1 );
 					break;
 				case 32: // Space
-					keyboardForce = new THREE.Vector3( 0, 35, 0 );
+					keyboardForce = new THREE.Vector3( 0, 0.2, 0 );
 
 			}
 		};
 
+		// Clear keyboard
 		var clearKeyboardInput = function(event){
 			event = event || window.event;
 			event.preventDefault();
+			//console.log("value before change" + keyboardForce.x + " " + keyboardForce.y + " "   + keyboardForce.z + " "   );
 			keyboardForce = new THREE.Vector3( 0, 0, 0 );
 		};
-
  		document.onkeydown = applyKeyboardInputs;
  		document.onkeyup = clearKeyboardInput;
 
+ 		// Apply constant force to ball
 		updateFunctions.push(function(){
-			//ball.mover.addForce( new THREE.Vector3( 0, 0, -0.5 ));
-			//ball.mesh.applyCentralImpulse(new THREE.Vector3( 0, 0, -0.02 ));
+			//ball.mover.addForce( new THREE.Vector3( 0, 0, -0.01 ));
+			ball.mesh.applyCentralImpulse(new THREE.Vector3( 0, 0, -0.01 ));
 		});
 
-
-
+		// Apply keyboard force.
 		updateFunctions.push(function(){
-			console.log(keyboardForce.length());
-
 			if(keyboardForce.length() > 0){
-				console.log("Boom");
 				ball.mesh.applyCentralImpulse(keyboardForce.clone());
-				keyboardForce.y = 0;
 			}
-
 		});
 
-		//updateFunctions.push(ball.mover.update);	
+		// Update lava.
 		updateFunctions.push(lava.update);
 
-		updateFunctions.push(function(delta){
-			var m = ball.mesh;
-			var v = ball.mover.getVelocity();
-			m.rotation.x += v.z * delta;
-		});
-
-		var ballLocation = ball.mover.getLocation();
-
+		// Update segments.
 		updateFunctions.push(function(){
-			ground.updateSegments(ballLocation.clone());
+			ground.updateSegments(ball.mesh.position.clone());
 		});
-		
-		updateFunctions.push(function() {
-			camera.lookAt(ballLocation.clone().add(new THREE.Vector3( 0, 0, -14 )));
+
+		// Update camera.
+		updateFunctions.push(function() {	
+			var ballLocation = ball.mesh.position.clone();
 			camera.position = ballLocation.clone().add(new THREE.Vector3( 0, 4, 10 ));
+			camera.position.y = Math.round(camera.position.y * 100) / 100;
+			camera.lookAt(camera.position.clone().add(new THREE.Vector3( 0, -5, -14 )));
 		});
 	};
 
@@ -407,7 +404,7 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene', 'physi'], function(
 			fn(delta);
 		});
 
-        scene.simulate();
+		scene.simulate();        
 		renderer.render(scene, camera);
 	};
 
