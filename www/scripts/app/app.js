@@ -1,11 +1,14 @@
 define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, clock, camera, renderer, scene)  {
 
 	var Ground = function(){
+		var segmentQueue = [];
+
 		var currentSegment;
 
 		var addSegment = function(parts){
 			parts = parts || [0,0,0,0,0,0,0,0];
-
+			var newSegment = [];
+			
 			for(var x = 0; x < parts.length; x++){
 				if(parts[x] < 0) // Digging a hole
 					continue;
@@ -18,23 +21,48 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 				var iceCube = new THREE.Mesh( geometry, material );
 				iceCube.position = new THREE.Vector3( x, pieceHeight/2, -currentSegment );
 				scene.add( iceCube );
+				newSegment.push(iceCube);
 			}
 
+			segmentQueue.push(newSegment);
 			currentSegment++;
 		};
 
+		var removeSegment = function(zValue) {
+			var segmentToRemove = segmentQueue[0];
+			// number of units between ball and screen, before removal
+			var offset = 4;
+			
+			if (segmentToRemove[0].position.z-offset > zValue)
+			{
+				segmentQueue.shift();
+				for(var i = 0; i < segmentToRemove.length; i++)
+					scene.remove(segmentToRemove[i]);
+			}
+		};
+		
 		var getColor = function(blahonga) {
 			return blahonga % 2 === 0 ? 0x8080ff : 0x0000ff;
 		};
 
+		var updateSegments = function(location) {
+			// number of units from the ball and forward, until empty space
+			var offset = 50;
+			
+			if (location.z-offset < -currentSegment)
+				addSegment(generateSegment());
+			removeSegment(location.z);
+		};
+		
 		currentSegment = 0;
 		
 		return {
-			addSegment: addSegment
+			addSegment: addSegment,
+			updateSegments: updateSegments
 		};
 	};
-
-	var Mover = function(initialPosition) {
+	
+	var BallMover = function(initialPosition) {
 		var acceleration = new THREE.Vector3( 0, 0, 0 );
 		var velocity = new THREE.Vector3( 0, 0, 0 );
 		var maxVelocity = new THREE.Vector3( 9, 20, 10 );
@@ -104,7 +132,7 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 				} );
 		var ball = new THREE.Mesh( geometry, material );
 		var ballPosition = new THREE.Vector3( 3.5, 0.4, -1 );
-		var mover = new Mover(ballPosition);
+		var mover = new BallMover(ballPosition);
 
 		ball.position = mover.getLocation();
 
@@ -237,9 +265,8 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 
 		var ground = new Ground();
 
-		for (var i = 0; i < 350; i++) {
-			var segment = generateSegment();
-			ground.addSegment(segment);
+		for (var i = 0; i < 20; i++) {
+			ground.addSegment(generateSegment());
 		}
 
 		//var skybox = new SkyBox();
@@ -298,9 +325,15 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 		updateFunctions.push(ball.mover.update);
 		updateFunctions.push(lava.update);
 
+		var ballLocation = ball.mover.getLocation();
+
+		updateFunctions.push(function(){
+			ground.updateSegments(ballLocation.clone());
+		});
+		
 		updateFunctions.push(function() {
-			camera.lookAt(ball.mover.getLocation().clone().add(new THREE.Vector3( 0, 0, -14 )));
-			camera.position = ball.mover.getLocation().clone().add(new THREE.Vector3( 0, 4, 10 ));
+			camera.lookAt(ballLocation.clone().add(new THREE.Vector3( 0, 0, -14 )));
+			camera.position = ballLocation.clone().add(new THREE.Vector3( 0, 4, 10 ));
 		});
 	};
 
