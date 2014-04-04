@@ -37,11 +37,14 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 	var Mover = function(initialPosition) {
 		var acceleration = new THREE.Vector3( 0, 0, 0 );
 		var velocity = new THREE.Vector3( 0, 0, 0 );
-		var maxVelocity = 10;
+		var maxVelocity = 50;
 
 		var location = initialPosition || new THREE.Vector3( 0, 0, 0 );
+		var gravity = new THREE.Vector3( 0, -1, 0 );
 
 		var update = function(delta) {
+			addForce(gravity);
+
 			velocity.add(acceleration);
 
 			if(velocity.length() > maxVelocity) {
@@ -51,6 +54,11 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 
 			acceleration.multiplyScalar(0);
 			location.add(velocity.clone().multiplyScalar(delta));
+				
+			if(location.y < 0.4){
+				location.y = 0.4;
+			}			
+
 			velocity.multiplyScalar(0.99);
 		};
 
@@ -169,8 +177,39 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 		//ball.mover.addForce(new THREE.Vector3( 1, 0, -1 ));
 		var lava = new Lava();
 
-		updateFunctions.push(function(delta){
-			ball.mover.addForce(new THREE.Vector3( 0, 0, -1 ));
+		// Hook up kbd events.
+		var applyKeyboardInputs = function(event) {
+			event = event || window.event;
+			event.preventDefault();
+
+			if(ball.mover.getLocation().y > 0.4) {
+				return false;
+			}
+
+			switch (event.keyCode) {
+				case 37: // Left
+					ball.mover.addForce(new THREE.Vector3( -3, 0, 0 ));
+					break;
+				case 38: // Up
+					ball.mover.addForce(new THREE.Vector3( 0, 0, -3 ));
+					break;
+				case 39: // Right
+					ball.mover.addForce(new THREE.Vector3( 3, 0, 0 ));
+					break;
+				case 40: // Down
+					ball.mover.addForce(new THREE.Vector3( 0, 0, 3 ));
+					break;
+				case 32: // Space
+					ball.mover.addForce(new THREE.Vector3( 0, 50, 0 ));
+
+
+			}
+		};
+
+ 		document.onkeydown = applyKeyboardInputs;
+
+		updateFunctions.push(function(){
+			ball.mover.addForce(new THREE.Vector3( 0, 0, -0.1 ));
 		});
 
 		updateFunctions.push(ball.mover.update);
