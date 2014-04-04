@@ -47,7 +47,7 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 
 		var updateSegments = function(location) {
 			// number of units from the ball and forward, until empty space
-			var offset = 50;
+			var offset = 100;
 			
 			if (location.z-offset < -currentSegment)
 				addSegment(generateSegment());
@@ -130,12 +130,12 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 
 
 	var Ball = function() {
-		var geometry = new THREE.SphereGeometry( 0.4, 32, 32 );
+		var geometry = new THREE.SphereGeometry( 0.4, 128, 128 );
 
 		var texture = THREE.ImageUtils.loadTexture( "../gfx/ball.png" );
 		texture.wrapT = THREE.RepeatWrapping; 
 		texture.wrapS = THREE.RepeatWrapping;
-		texture.repeat.set(4,4); 
+		texture.repeat.set(2,2); 
 
 
 		var material = new THREE.MeshPhongMaterial( {
@@ -180,7 +180,7 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 		} );
 
 		var lava = new THREE.Mesh(geometry,material);
-		lava.position = new THREE.Vector3( -0, -1, 0 );
+		lava.position = new THREE.Vector3( -0, -5, 0 );
         lava.rotation.x=-0.5*Math.PI; 
 
 		var material2 = new THREE.MeshPhongMaterial( {
@@ -190,7 +190,7 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 		} );
 
 		var lava2 = new THREE.Mesh(geometry,material2);
-		lava2.position = new THREE.Vector3( -0, -1, -size );
+		lava2.position = new THREE.Vector3( -0, -5, -size );
         lava2.rotation.x=-0.5*Math.PI; 
 
 		scene.add(lava);
@@ -282,7 +282,7 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 
 		var ground = new Ground();
 
-		for (var i = 0; i < 20; i++) {
+		for (var i = 0; i < 100; i++) {
 			ground.addSegment(generateSegment());
 		}
 
@@ -345,7 +345,7 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 		updateFunctions.push(function(delta){
 			var m = ball.mesh;
 			var v = ball.mover.getVelocity();
-			m.rotation.x += v.z * delta;
+			m.rotation.x += v.z * delta * 0.8;
 		});
 
 		var ballLocation = ball.mover.getLocation();
