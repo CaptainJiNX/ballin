@@ -65,7 +65,7 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 	var BallMover = function(initialPosition) {
 		var acceleration = new THREE.Vector3( 0, 0, 0 );
 		var velocity = new THREE.Vector3( 0, 0, 0 );
-		var maxVelocity = new THREE.Vector3( 9, 20, 20 );
+		var maxVelocity = new THREE.Vector3( 9, 20, 15 );
 
 		var location = initialPosition || new THREE.Vector3( 0, 0, 0 );
 		var gravity = new THREE.Vector3( 0, -1, 0 );
@@ -100,8 +100,8 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 			acceleration.multiplyScalar(0);
 			location.add(velocity.clone().multiplyScalar(delta));
 				
-			if(location.y < 0.4){
-				location.y = 0.4;
+			if(location.y < 0.3){
+				location.y = 0.3;
 			}			
 
 			velocity.x *= 0.85;
@@ -130,13 +130,13 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 
 
 	var Ball = function() {
-		var geometry = new THREE.SphereGeometry( 0.4, 128, 128 );
+
+		var geometry = new THREE.SphereGeometry( 0.3, 128, 128 );
 
 		var texture = THREE.ImageUtils.loadTexture( "../gfx/ball.png" );
 		texture.wrapT = THREE.RepeatWrapping; 
 		texture.wrapS = THREE.RepeatWrapping;
 		texture.repeat.set(2,2); 
-
 
 		var material = new THREE.MeshPhongMaterial( {
 					color: 0xFFFFFF,
@@ -147,7 +147,7 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 
 
 		var ball = new THREE.Mesh( geometry, material );
-		var ballPosition = new THREE.Vector3( 3.5, 0.4, -1 );
+		var ballPosition = new THREE.Vector3( 3.5, 0.3, -1 );
 		var mover = new BallMover(ballPosition);
 
 		ball.position = mover.getLocation();
@@ -297,19 +297,19 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 			event = event || window.event;
 			event.preventDefault();
 
-  			if(ball.mover.getLocation().y > 0.4) {
+  			if(ball.mover.getLocation().y > 0.3) {
 				return false;
 			}
 
 			switch (event.keyCode) {
 				case 37: // Left
-					keyboardForce = new THREE.Vector3( -10, 0, 0 );
+					keyboardForce = new THREE.Vector3( -7, 0, 0 );
 					break;
 				case 38: // Up
 					keyboardForce = new THREE.Vector3( 0, 0, -0.5 );
 					break;
 				case 39: // Right
-					keyboardForce = new THREE.Vector3( 10, 0, 0 );
+					keyboardForce = new THREE.Vector3( 7, 0, 0 );
 					break;
 				case 40: // Down
 					keyboardForce = new THREE.Vector3( 0, 0, 0.1 );
@@ -366,7 +366,7 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 		for (var j = 0; j < 8; j++)
 		{
 			var piece = Math.floor((Math.random()*100)+1);
-			if (piece < 3)
+			if (piece < 5)
 			{
 				pieces[j] = -1;
 			}
