@@ -1,4 +1,4 @@
-define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, clock, camera, renderer, scene)  {
+define(['threeCore', 'clock', 'camera', 'renderer', 'scene', 'physi'], function(THREE, clock, camera, renderer, scene, Physi)  {
 
 	var Ground = function(){
 		var segmentQueue = [];
@@ -18,7 +18,8 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 				
 				var geometry = new THREE.CubeGeometry( 1, pieceHeight, 1 );
 				var material = new THREE.MeshLambertMaterial( {color: getColor(x + currentSegment)} );
-				var iceCube = new THREE.Mesh( geometry, material );
+				var iceCube = new Physi.BoxMesh( geometry, material, 0 );
+
 				iceCube.position = new THREE.Vector3( x, pieceHeight/2, -currentSegment );
 				scene.add( iceCube );
 				newSegment.push(iceCube);
@@ -108,8 +109,10 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 			velocity.z *= 0.99;
 		};
 
-		var addForce = function(force) {			
-			acceleration.add(force);
+		var addForce = function(force) {		
+			//ball.applyCentralImpulse({x:0, y:1, z:-4 });
+
+			//acceleration.add(force);
 		};
 
 		var getLocation = function() {
@@ -144,10 +147,16 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 					map: texture
 
 				} );
+		
+        var ball = new Physijs.SphereMesh(
+            geometry,
+            material,
+            undefined,
+            { restitution: Math.random() * 1.5 }
+        );
+ 
 
-
-		var ball = new THREE.Mesh( geometry, material );
-		var ballPosition = new THREE.Vector3( 3.5, 0.4, -1 );
+		var ballPosition = new THREE.Vector3( 3.5, 9, -1 );
 		var mover = new BallMover(ballPosition);
 
 		ball.position = mover.getLocation();
@@ -295,26 +304,30 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 		var applyKeyboardInputs = function(event) {
 			event = event || window.event;
 			event.preventDefault();
-
-  			if(ball.mover.getLocation().y > 0.4) {
-				return false;
+			console.log("asdf");
+/*
+  			if(ball.mover.getLocation().y > 0.3) {
+  				return false;
 			}
+*/
+
 
 			switch (event.keyCode) {
 				case 37: // Left
-					keyboardForce = new THREE.Vector3( -10, 0, 0 );
+					keyboardForce = new THREE.Vector3( -0.02, 0, 0 );
 					break;
 				case 38: // Up
 					keyboardForce = new THREE.Vector3( 0, 0, -0.5 );
 					break;
 				case 39: // Right
-					keyboardForce = new THREE.Vector3( 10, 0, 0 );
+					keyboardForce = new THREE.Vector3( 0.02, 0, 0 );
 					break;
 				case 40: // Down
 					keyboardForce = new THREE.Vector3( 0, 0, 0.1 );
 					break;
 				case 32: // Space
 					keyboardForce = new THREE.Vector3( 0, 35, 0 );
+
 			}
 		};
 
@@ -328,18 +341,24 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
  		document.onkeyup = clearKeyboardInput;
 
 		updateFunctions.push(function(){
-			ball.mover.addForce( new THREE.Vector3( 0, 0, -0.5 ));
+			//ball.mover.addForce( new THREE.Vector3( 0, 0, -0.5 ));
+			//ball.mesh.applyCentralImpulse(new THREE.Vector3( 0, 0, -0.02 ));
 		});
-		updateFunctions.push(function(){
-			if(keyboardForce.length() > 0){
-				ball.mover.addForce( keyboardForce.clone());
-				keyboardForce.y = 0;
 
+
+
+		updateFunctions.push(function(){
+			console.log(keyboardForce.length());
+
+			if(keyboardForce.length() > 0){
+				console.log("Boom");
+				ball.mesh.applyCentralImpulse(keyboardForce.clone());
+				keyboardForce.y = 0;
 			}
 
 		});
 
-		updateFunctions.push(ball.mover.update);	
+		//updateFunctions.push(ball.mover.update);	
 		updateFunctions.push(lava.update);
 
 		updateFunctions.push(function(delta){
@@ -388,6 +407,7 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 			fn(delta);
 		});
 
+        scene.simulate();
 		renderer.render(scene, camera);
 	};
 
