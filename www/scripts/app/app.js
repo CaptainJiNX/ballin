@@ -20,13 +20,13 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene', 'physi'], function(
 				var z2 = 1;
 				if(parts[x] == 5)
 				{
-					var x2 = 0.5;
+					x2 = 0.5;
 					pieceHeight = 0.5;
 				}
 
 				var geometry = new THREE.CubeGeometry( x2, pieceHeight, z2 );
 				var material = new THREE.MeshLambertMaterial( {color: getColor(x + currentSegment)} );
-				var iceCube = new Physi.BoxMesh( geometry, material, 0 );
+				var iceCube = new Physi.BoxMesh( geometry, material, 0, 0 );
 
 				iceCube.position = new THREE.Vector3( x, pieceHeight/2, -currentSegment );
 				scene.add( iceCube );
@@ -298,6 +298,7 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene', 'physi'], function(
 		addDefaultLights();
 
 		var ground = new Ground();
+		scene.fog = new THREE.FogExp2( 0x000000, 0.03 );
 
 		for (var i = 0; i < 50; i++) {
 			ground.addSegment([0,0,0,0,0,0,0,0]);
