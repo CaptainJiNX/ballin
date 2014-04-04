@@ -281,6 +281,7 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 		addDefaultLights();
 
 		var ground = new Ground();
+		scene.fog = new THREE.FogExp2( 0x000000, 0.03 );
 
 		for (var i = 0; i < 100; i++) {
 			ground.addSegment(generateSegment());
