@@ -108,6 +108,8 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 		texture.wrapS = THREE.RepeatWrapping;
 		texture.repeat.set( size/2, size/2 ); 
 
+		anim = new TextureAnimator( texture, 4, 1, 4, 150 ); // texture, #horiz, #vert, #total, duration.
+
 		var material = new THREE.MeshPhongMaterial( {
 			color: 0xFFFFFF,
 			specular: 0x404040,
@@ -132,7 +134,9 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 		scene.add(lava2);
 
 		return {
-			update: function() {
+			update: function(delta) {
+
+				anim.update(1000 * delta);
 
 				var pos = camera.position.z;
 				if(pos < lava.position.z - (size/2))
@@ -147,13 +151,60 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 		};
 	};
 
+	var SkyBox = function() {
+		var imagePrefix = "../gfx/moondust-";
+			var directions  = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"];
+			var imageSuffix = ".png";
+			var skyGeometry = new THREE.CubeGeometry( 5000, 5000, 5000 );	
+
+			var materialArray = [];
+			for (var i = 0; i < 6; i++)
+				materialArray.push( new THREE.MeshBasicMaterial({
+					map: THREE.ImageUtils.loadTexture( imagePrefix + directions[i] + imageSuffix ),
+					side: THREE.BackSide
+				}));
+			var skyMaterial = new THREE.MeshFaceMaterial( materialArray );
+			var skyBox = new THREE.Mesh( skyGeometry, skyMaterial );
+			scene.add( skyBox );		
+	};
+
+	function TextureAnimator(texture, tilesHoriz, tilesVert, numTiles, tileDispDuration) 
+	{
+		this.tilesHorizontal = tilesHoriz;
+		this.tilesVertical = tilesVert;
+		this.numberOfTiles = numTiles;
+		texture.wrapS = texture.wrapT = THREE.RepeatWrapping; 
+		texture.repeat.set( 100, 100 );
+		this.tileDisplayDuration = tileDispDuration;
+		this.currentDisplayTime = 0;
+		this.currentTile = 0;
+		
+		this.update = function( milliSec )
+		{
+			this.currentDisplayTime += milliSec;
+			while (this.currentDisplayTime > this.tileDisplayDuration)
+			{
+				this.currentDisplayTime -= this.tileDisplayDuration;
+				this.currentTile++;
+				if (this.currentTile == this.numberOfTiles)
+				{
+					this.currentTile = 0;
+				}
+				var currentColumn = this.currentTile % this.tilesHorizontal;
+				texture.offset.x = currentColumn / this.tilesHorizontal;
+				var currentRow = Math.floor( this.currentTile / this.tilesHorizontal );
+				texture.offset.y = currentRow / this.tilesVertical;
+			}
+		};
+	}			
+
 	var addAmbientLight = function() {
 		var ambientLight = new THREE.AmbientLight(0x020202);
 		scene.add(ambientLight);
 	};
 
 	var addFrontLight = function() {
-		var frontLight = new THREE.DirectionalLight('white', 1);
+		var frontLight = new THREE.DirectionalLight('white', 0.8);
 		frontLight.position.set(8, 15, 10);
 		scene.add(frontLight);
 	};
@@ -173,6 +224,7 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 			ground.addSegment(segment);
 		}
 
+		//var skybox = new SkyBox();
 		var ball = new Ball();
 		//ball.mover.addForce(new THREE.Vector3( 1, 0, -1 ));
 		var lava = new Lava();
