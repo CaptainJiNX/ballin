@@ -138,6 +138,29 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 		//ball.mover.addForce(new THREE.Vector3( 1, 0, -1 ));
 		var lava = new Lava();
 
+		// Hook up kbd events.
+		var applyKeyboardInputs = function(event) {
+			event = event || window.event;
+			switch (event.keyCode) {
+				case 37:
+					ball.mover.addForce(new THREE.Vector3( -1, 0, 0 ));
+					break;
+				case 38:
+					ball.mover.addForce(new THREE.Vector3( 0, 0, -1 ));
+					break;
+				case 39:
+					ball.mover.addForce(new THREE.Vector3( 1, 0, 0 ));
+					break;
+				case 40:
+					ball.mover.addForce(new THREE.Vector3( 0, 0, 1 ));
+					break;
+				case 32:
+					ball.mover.addForce(new THREE.Vector3( 0, 1, 0 ));
+			}
+		};
+
+ 		document.onkeydown = applyKeyboardInputs;
+
 		updateFunctions.push(function(delta){
 			ball.mover.addForce(new THREE.Vector3( 0, 0, -1 ));
 		});
