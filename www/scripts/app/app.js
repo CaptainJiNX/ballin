@@ -73,6 +73,25 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 		};
 	};
 
+	var Lava = function() {
+		var geometry = new THREE.PlaneGeometry(2000,2000);
+		var texture = THREE.ImageUtils.loadTexture( "../gfx/lava.png" );
+		texture.wrapT = THREE.RepeatWrapping; 
+		texture.wrapS = THREE.RepeatWrapping; 
+		texture.wrapT = THREE.RepeatWrapping;
+		texture.repeat.set( 4, 4 ); 
+		var material = new THREE.MeshPhongMaterial( {
+			color: 0xFFFFFF,
+			specular: 0x404040,
+			map: texture
+		} );
+		var lava = new THREE.Mesh(geometry,material);
+		lava.position = new THREE.Vector3( 0, -1, 0 );
+        lava.rotation.x=-0.5*Math.PI;
+
+		scene.add(lava);
+	};
+
 	var addAmbientLight = function() {
 		var ambientLight = new THREE.AmbientLight(0x020202);
 		scene.add(ambientLight);
@@ -99,7 +118,8 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 		}
 
 		var ball = new Ball();
-		ball.mover.addForce(new THREE.Vector3( 1, 0, -1 ));
+		//ball.mover.addForce(new THREE.Vector3( 1, 0, -1 ));
+		var lava = new Lava();
 
 		updateFunctions.push(ball.mover.update);
 	};
