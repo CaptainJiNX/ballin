@@ -41,17 +41,17 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 
 		var addForce = function(force) {
 			acceleration.add(force);
-		}
+		};
 
 		var getLocation = function() {
 			return location;
-		}
+		};
 
 		return {
 			update: update,
 			addForce: addForce,
 			getLocation: getLocation
-		}
+		};
 	};
 
 	var Ball = function() {
