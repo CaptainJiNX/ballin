@@ -89,6 +89,29 @@ define(['threeCore', 'clock', 'camera', 'renderer', 'scene'], function(THREE, cl
 		};
 	};
 
+// function applyKeyboardInputs(event)
+// 		{
+// 			event = event || window.event;
+// 			switch (evt.keyCode) {
+// 				case 37:
+// 					ball.mover.addForce(new THREE.Vector3( -1, 0, 0 ));
+// 					break;
+// 				case 38:
+// 					ball.mover.addForce(new THREE.Vector3( 0, 0, -1 ));
+// 					break;
+// 				case 39:
+// 					ball.mover.addForce(new THREE.Vector3( 1, 0, 0 ));
+// 					break;
+// 				case 40:
+// 					ball.mover.addForce(new THREE.Vector3( 0, 0, 1 ));
+// 					break;
+// 				case 32:
+// 					ball.mover.addForce(new THREE.Vector3( 0, 1, 0 ));
+// 			}
+// 		}
+		
+// 		document.onkeydown = applyKeyboardInputs;
+
 	var addAmbientLight = function() {
 		var ambientLight = new THREE.AmbientLight(0x020202);
 		scene.add(ambientLight);
